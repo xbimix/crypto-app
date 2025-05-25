@@ -9,6 +9,7 @@ import {
   CircularProgress,
   Divider
 } from '@mui/material';
+
 import PriceChart from './PriceChart';
 import OrderForm from './OrderForm';
 
