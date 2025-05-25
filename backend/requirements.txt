@@ -1,0 +1,19 @@
+# Core
+Flask
+Flask-CORS
+
+# Binance API
+ccxt
+
+# Data Analysis
+pandas
+numpy
+
+# Environment
+python-dotenv
+
+# HTTP Requests
+requests
+
+# Date/Time
+python-dateutil
