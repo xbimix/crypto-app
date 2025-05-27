@@ -81,17 +81,7 @@ def place_order():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-#@app.route('/api/best_opportunities')
-#def best_opportunities():
-    opportunities = []
-    for symbol, data in current_prices.items():
-        if data['change'] < -5:  # 5% price drop
-            opportunities.append({
-                'symbol': symbol.replace('/USDT', ''),
-                'price': data['price'],
-                'change': data['change']
-            })
-    return jsonify(opportunities[:25])
+
 
 def best_opportunities():
     opportunities = []
