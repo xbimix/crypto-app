@@ -12,10 +12,10 @@ import {
 
 import PriceChart from './PriceChart';
 import OrderForm from './OrderForm';
+import { Outlet } from 'react-router-dom'
 
 function CryptoDetail() {
   const { symbol } = useParams(); 
-  console.log({symbol})
   const [cryptoData, setCryptoData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,7 +51,8 @@ function CryptoDetail() {
         </Box>
       ) : cryptoData ? (
         <>
-
+// Add this in your return statement
+          <Outlet />
         <Box>
         <PriceChart symbol={symbol} />  {/* Other components */}
         </Box>
@@ -66,7 +67,7 @@ function CryptoDetail() {
             </Typography>
           </Box>
 
-          <PriceChart symbol={symbol} />
+         
 
           <Grid container spacing={3} sx={{ mt: 2 }}>
             <Grid item xs={12} md={6}>
