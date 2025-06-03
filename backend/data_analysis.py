@@ -57,8 +57,9 @@ def calculate_rsi(prices, period=14):
     """
     delta = pd.Series(prices).diff()
     gain = delta.where(delta > 0, 0).rolling(period).mean()
-    loss = -delta.where(delta < 0, 0).rolling(period).mean()
-    rs = gain / loss
+    loss = (-delta.where(delta < 0, 0)).rolling(period).mean()
+    # Avoid division by zero
+    rs = gain / (loss + 1e-9)  # Add small epsilon
     return 100 - (100 / (1 + rs))
 
 def auto_rebuy_price(current_price, risk_percent=2, rebuy_count=3):

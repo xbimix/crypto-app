@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 import os
 
 from data_analysis import calculate_support_resistance, detect_wave_pattern, calculate_fib_levels
+from threading import Lock
+current_prices_lock = Lock()
 
 app = Flask(__name__)
 CORS(app)
@@ -44,6 +46,7 @@ def update_prices():
                     'high': markets[symbol]['high'],
                     'low': markets[symbol]['low']
                 }
+                
             time.sleep(5)
         except Exception as e:
             print(f"Price update error: {e}")
@@ -68,6 +71,7 @@ def get_cryptos():
 @app.route('/api/place_order', methods=['POST'])
 def place_order():
     data = request.json
+    
     try:
         order = binance.create_order(
             symbol=data['symbol'],
@@ -75,6 +79,7 @@ def place_order():
             side=data['side'],
             amount=data['amount'],
             price=data.get('price')
+            
         )
         open_orders[order['id']] = order
         return jsonify({'success': True, 'order': order})
@@ -100,6 +105,11 @@ def best_opportunities():
             })
     return opportunities
 
+
+# Add in app.py
+@app.route('/api/best_opportunities')
+def get_best_opportunities():
+    return jsonify(best_opportunities())
 
 @app.route('/api/analysis/<symbol>')
 def get_analysis(symbol):

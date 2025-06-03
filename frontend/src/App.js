@@ -7,7 +7,9 @@ import {
   Container, 
   IconButton, 
   useTheme,
-  Switch
+  Switch,
+  ThemeProvider,
+  createTheme
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -21,18 +23,21 @@ import Drawer from '@mui/material/Drawer';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
+// In App.js (React)
+
+
+
 function App() {
-  const theme = createTheme({
-  palette: {
-    mode: darkMode ? 'dark' : 'light',
-    primary: {
-      main: '#00ff88',
-    },
-  },
-});
+  const [darkMode, setDarkMode] = useState(true);
+  
+  const theme = useMemo(() => createTheme({
+    palette: { mode: darkMode ? 'dark' : 'light' }
+  }), [darkMode]);
+
+ 
+
   const location = useLocation();
-  // Replace your existing theme creation with:
-const [darkMode, setDarkMode] = useState(true);
+  
 
   const [mobileOpen, setMobileOpen] = useState(false);
   // Inside App() function, before return:
@@ -59,6 +64,10 @@ const navItems = [
             <MenuIcon />
           </IconButton>
           
+ <ThemeProvider theme={theme}>
+      {/* App content */}
+    </ThemeProvider>
+
           <Button 
             component={Link} 
             to="/" 
@@ -160,5 +169,6 @@ const navItems = [
     </div>
   );
 }
+
 
 export default App;

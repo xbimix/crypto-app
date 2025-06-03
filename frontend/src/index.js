@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+
 
 import App from './App';
 
@@ -24,14 +24,7 @@ const theme = createTheme({
   }
 });
 
-const getTheme = (darkMode) => createTheme({
-  palette: {
-    mode: darkMode ? 'dark' : 'light',
-    primary: {
-      main: '#00ff88',
-    },
-  },
-});
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
