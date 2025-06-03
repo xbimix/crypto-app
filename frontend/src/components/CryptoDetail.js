@@ -13,35 +13,57 @@ import {
 import PriceChart from './PriceChart';
 import OrderForm from './OrderForm';
 
+
+// Format data from API response
+const formatChartData = (ohlcv) => {
+  return ohlcv.map(item => ({
+    timestamp: item.timestamp,
+    price: item.close
+  }));
+};
+
 function CryptoDetail() {
   const { symbol } = useParams(); 
   console.log({symbol})
   const [cryptoData, setCryptoData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [ohlcData, setOhlcData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [priceRes, statsRes] = await Promise.all([
+        const [priceRes, statsRes, historicalRes] = await Promise.all([
           axios.get(`/api/cryptos/${symbol}`),
-          axios.get(`/api/cryptos/${symbol}/stats`)
+          axios.get(`/api/cryptos/${symbol}/stats`),
+          axios.get(`/api/historical/${symbol}`)
         ]);
         
         setCryptoData({
           price: priceRes.data,
           stats: statsRes.data
         });
+        setOhlcData(historicalRes.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching crypto data:", error);
         setLoading(false);
       }
     };
+    // const fetchHistoricalData = async () => {
+    //   try {
+    //     const response = await axios.get(`/api/historical/${symbol}`);
+    //     setOhlcData(response.data);
+    //   } catch (error) {
+    //     console.error("Error fetching historical data:", error);
+    //   }
+    // };
 
     fetchData();
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
   }, [symbol]);
+  console.log({cryptoData})
+  console.log({ohlcData})
 
   return (
     <Box sx={{ p: 3 }}>
@@ -52,19 +74,21 @@ function CryptoDetail() {
       ) : cryptoData ? (
         <>
 
-        <Box>
-        <PriceChart symbol={symbol} />  {/* Other components */}
+       {ohlcData.length > 0 && (
+  <Box sx={{ mb: 4, height: 400 }}>
+    <PriceChart data={formatChartData(ohlcData)} />
+  </Box>
+)}
+
+
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h3" gutterBottom>
+            {symbol}/USDT
+          </Typography>
+          <Typography variant="h4" color="primary">
+            ${cryptoData.price?.toLocaleString(undefined, { maximumFractionDigits: 8 })}
+          </Typography>
         </Box>
-
-
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h3" gutterBottom>
-              {symbol}/USDT
-            </Typography>
-            <Typography variant="h4" color="primary">
-              ${cryptoData.price?.toLocaleString(undefined, { maximumFractionDigits: 8 })}
-            </Typography>
-          </Box>
 
           <PriceChart symbol={symbol} />
 

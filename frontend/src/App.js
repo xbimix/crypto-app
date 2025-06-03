@@ -1,116 +1,95 @@
+// App.js - Main application component
+
+// React and Routing Imports
 import React, { useState } from 'react';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { useTheme } from '@mui/material/styles';
+
+
+
+// Material-UI Core Components
 import { 
   AppBar, 
   Toolbar, 
   Button, 
   Container, 
   IconButton, 
-  useTheme,
   Switch,
-  ThemeProvider,
-  createTheme
+  Drawer,
+  List,
+  ListItem
 } from '@mui/material';
+
+// Material-UI Icons
 import MenuIcon from '@mui/icons-material/Menu';
 import GitHubIcon from '@mui/icons-material/GitHub';
+
+// Custom Components
 import CryptoTable from './components/CryptoTable';
 import BestBuys from './components/BestBuys';
-import PriceChart from './components/PriceChart';
 import CryptoDetail from './components/CryptoDetail';
 import OrderHistory from './components/OrderHistory';
-// Add these imports at the top
-import Drawer from '@mui/material/Drawer';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-// In App.js (React)
+import PriceChart from './components/PriceChart';
 
+function App({ darkMode, setDarkMode }) {
+  // ============= STATE MANAGEMENT =============
+  const theme = useTheme(); // Access MUI theme
+  const location = useLocation(); // Get current route location
+  const [mobileOpen, setMobileOpen] = useState(false); // Mobile drawer state
+  // ============= NAVIGATION CONFIG =============
+  const navItems = [
+    { path: '/', label: 'Live Prices' },
+    { path: '/best-buys', label: 'Best Opportunities' },
+    { path: '/orders', label: 'My Orders' }
+  ];
 
-
-function App() {
-  const [darkMode, setDarkMode] = useState(true);
-  
-  const theme = useMemo(() => createTheme({
-    palette: { mode: darkMode ? 'dark' : 'light' }
-  }), [darkMode]);
-
- 
-
-  const location = useLocation();
-  
-
-  const [mobileOpen, setMobileOpen] = useState(false);
-  // Inside App() function, before return:
-const navItems = [
-  { path: '/', label: 'Live Prices' },
-  { path: '/best-buys', label: 'Best Opportunities' },
-  { path: '/orders', label: 'My Orders' },
-];
-  const handleThemeChange = () => {
-    setDarkMode(!darkMode);
-  };
+  // ============= EVENT HANDLERS =============
+  const handleThemeChange = () => setDarkMode(!darkMode);
+  const toggleDrawer = () => setMobileOpen(!mobileOpen);
 
   return (
     <div className="App">
+      {/* ============= TOP NAVIGATION BAR ============= */}
       <AppBar position="static" color="default">
         <Toolbar>
+          {/* Mobile Menu Button */}
           <IconButton
             edge="start"
             color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={() => setMobileOpen(!mobileOpen)}
+            onClick={toggleDrawer}
+            sx={{ mr: 2, display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
-          
- <ThemeProvider theme={theme}>
-      {/* App content */}
-    </ThemeProvider>
 
-          <Button 
-            component={Link} 
-            to="/" 
-            color="inherit"
-            sx={{ 
-  display: { xs: 'none', sm: 'block' },
-  fontWeight: location.pathname === '/' ? 'bold' : 'normal' 
-}}
-          >
-            Live Prices
-          </Button>
-          
-          <Button 
-            component={Link} 
-            to="/best-buys"
-            color="inherit"
-            sx={{ 
-  display: { xs: 'none', sm: 'block' },
-  fontWeight: location.pathname === '/' ? 'bold' : 'normal' 
-}}
-          >
-            Best Opportunities
-          </Button>
-          <Button 
-  component={Link} 
-  to="/orders"
-  color="inherit"
-  sx={{ 
-  display: { xs: 'none', sm: 'block' },
-  fontWeight: location.pathname === '/' ? 'bold' : 'normal' 
-}}
->
-  My Orders
-</Button>
+          {/* Desktop Navigation Links */}
+          {navItems.map((item) => (
+            <Button
+              key={item.path}
+              component={Link}
+              to={item.path}
+              color="inherit"
+              sx={{ 
+                fontWeight: location.pathname === item.path ? 'bold' : 'normal',
+                display: { xs: 'none', sm: 'block' }
+              }}
+            >
+              {item.label}
+            </Button>
+          ))}
+
+          {/* Spacer to push elements to the right */}
           <div style={{ flexGrow: 1 }} />
-          
+
+          {/* Theme Toggle Switch */}
           <Switch
             checked={darkMode}
             onChange={handleThemeChange}
             color="primary"
             inputProps={{ 'aria-label': 'dark mode toggle' }}
           />
-          
+
+          {/* GitHub Repository Link */}
           <IconButton
             color="inherit"
             href="https://github.com/yourusername/crypto-trading-app"
@@ -120,55 +99,49 @@ const navItems = [
           </IconButton>
         </Toolbar>
       </AppBar>
-          // Add this after the AppBar component:
-<Drawer
-  anchor="left"
-  open={mobileOpen}
-  onClose={() => setMobileOpen(false)}
->
-  <List sx={{ width: 250 }}>
-    <ListItem 
-      button 
-      component={Link}
-      to="/"
-      onClick={() => setMobileOpen(false)}
-    >
-      <ListItemText primary="Live Prices" />
-    </ListItem>
-    <ListItem 
-      button 
-      component={Link}
-      to="/best-buys"
-      onClick={() => setMobileOpen(false)}
-    >
-      <ListItemText primary="Best Opportunities" />
-    </ListItem>
-    <ListItem 
-      button 
-      component={Link}
-      to="/orders"
-      onClick={() => setMobileOpen(false)}
-    >
-      <ListItemText primary="My Orders" />
-    </ListItem>
-  </List>
-</Drawer>
+
+      {/* ============= MOBILE NAVIGATION DRAWER ============= */}
+      <Drawer
+        anchor="left"
+        open={mobileOpen}
+        onClose={toggleDrawer}
+        ModalProps={{ keepMounted: true }}
+      >
+        <List sx={{ width: 250 }}>
+          {navItems.map((item) => (
+            <ListItem 
+              button 
+              key={item.path}
+              component={Link}
+              to={item.path}
+              onClick={toggleDrawer}
+            >
+              {item.label}
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+
+      {/* ============= MAIN CONTENT AREA ============= */}
       <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
         <Routes>
+          {/* Live Prices Dashboard */}
           <Route path="/" element={<CryptoTable />} />
-          <Route path="/best-buys" element={<BestBuys />} />
-          <Route path="/chart/:symbol" element={<PriceChart />} />
           
-         <Route path="/crypto/:symbol" element={<CryptoDetail />}>
-  {/* If you want chart as sub-route */}
-  <Route path="chart" element={<PriceChart />} />
-</Route>
+          {/* Best Buying Opportunities Page */}
+          <Route path="/best-buys" element={<BestBuys />} />
+          
+          {/* Individual Crypto Detail Page with Nested Chart */}
+          <Route path="/crypto/:symbol" element={<CryptoDetail />}>
+            <Route path="chart" element={<PriceChart />} />
+          </Route>
+          
+          {/* Order History Page */}
           <Route path="/orders" element={<OrderHistory />} />
         </Routes>
       </Container>
     </div>
   );
 }
-
 
 export default App;

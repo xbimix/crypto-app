@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import OrderForm from './OrderForm';
+import Link from '@mui/material/Link';
+
 
 export default function CryptoTable() {
     const [cryptos, setCryptos] = useState([]);
@@ -28,7 +30,11 @@ export default function CryptoTable() {
                 <TableBody>
                     {cryptos.map((crypto) => (
                         <TableRow key={crypto.symbol}>
-                            <TableCell>{crypto.symbol}</TableCell>
+                            <TableCell>
+                                <Link>
+                                    <Link href={`/crypto/${crypto.symbol}`}>{crypto.symbol}</Link>
+                                </Link>
+                            </TableCell>
                             <TableCell>${crypto.price?.toFixed(4)}</TableCell>
                             <TableCell>
                                 <OrderForm symbol={crypto.symbol} />
