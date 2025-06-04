@@ -1,146 +1,146 @@
-// App.js - Main application component
-
-// React and Routing Imports
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react'; // Add useMemo import
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
-
-
-
-// Material-UI Core Components
 import { 
   AppBar, 
   Toolbar, 
   Button, 
   Container, 
   IconButton, 
-  Switch,
-  Drawer,
-  List,
-  ListItem
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemText,
+  Switch
 } from '@mui/material';
-
-// Material-UI Icons
 import MenuIcon from '@mui/icons-material/Menu';
 import GitHubIcon from '@mui/icons-material/GitHub';
-
-// Custom Components
+import { ThemeProvider, createTheme } from '@mui/material/styles'; // Import ThemeProvider
+import CssBaseline from '@mui/material/CssBaseline';
 import CryptoTable from './components/CryptoTable';
 import BestBuys from './components/BestBuys';
+import PriceChart from './components/PriceChart';
 import CryptoDetail from './components/CryptoDetail';
 import OrderHistory from './components/OrderHistory';
-import PriceChart from './components/PriceChart';
 
-function App({ darkMode, setDarkMode }) {
-  // ============= STATE MANAGEMENT =============
-  const theme = useTheme(); // Access MUI theme
-  const location = useLocation(); // Get current route location
-  const [mobileOpen, setMobileOpen] = useState(false); // Mobile drawer state
-  // ============= NAVIGATION CONFIG =============
+function App() {
+  const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+  
   const navItems = [
     { path: '/', label: 'Live Prices' },
     { path: '/best-buys', label: 'Best Opportunities' },
-    { path: '/orders', label: 'My Orders' }
+    { path: '/orders', label: 'My Orders' },
   ];
 
-  // ============= EVENT HANDLERS =============
-  const handleThemeChange = () => setDarkMode(!darkMode);
-  const toggleDrawer = () => setMobileOpen(!mobileOpen);
+  // Create theme with useMemo for better performance
+  const theme = useMemo(() => createTheme({
+    palette: {
+      mode: darkMode ? 'dark' : 'light',
+      primary: {
+        main: '#00ff88',
+      },
+      ...(darkMode ? {
+        background: {
+          default: '#0a1929',
+          paper: '#001e3c',
+        }
+      } : {
+        background: {
+          default: '#f5f5f5',
+          paper: '#ffffff',
+        }
+      })
+    },
+    typography: {
+      fontFamily: '"Inter", sans-serif',
+    }
+  }), [darkMode]);
+
+  const handleThemeChange = () => {
+    setDarkMode(!darkMode);
+  };
 
   return (
-    <div className="App">
-      {/* ============= TOP NAVIGATION BAR ============= */}
-      <AppBar position="static" color="default">
-        <Toolbar>
-          {/* Mobile Menu Button */}
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={toggleDrawer}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-
-          {/* Desktop Navigation Links */}
-          {navItems.map((item) => (
-            <Button
-              key={item.path}
-              component={Link}
-              to={item.path}
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div className="App">
+        <AppBar position="static" color="default">
+          <Toolbar>
+            <IconButton
+              edge="start"
               color="inherit"
-              sx={{ 
-                fontWeight: location.pathname === item.path ? 'bold' : 'normal',
-                display: { xs: 'none', sm: 'block' }
-              }}
+              aria-label="menu"
+              sx={{ mr: 2 }}
+              onClick={() => setMobileOpen(!mobileOpen)}
             >
-              {item.label}
-            </Button>
-          ))}
-
-          {/* Spacer to push elements to the right */}
-          <div style={{ flexGrow: 1 }} />
-
-          {/* Theme Toggle Switch */}
-          <Switch
-            checked={darkMode}
-            onChange={handleThemeChange}
-            color="primary"
-            inputProps={{ 'aria-label': 'dark mode toggle' }}
-          />
-
-          {/* GitHub Repository Link */}
-          <IconButton
-            color="inherit"
-            href="https://github.com/yourusername/crypto-trading-app"
-            target="_blank"
-          >
-            <GitHubIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-
-      {/* ============= MOBILE NAVIGATION DRAWER ============= */}
-      <Drawer
-        anchor="left"
-        open={mobileOpen}
-        onClose={toggleDrawer}
-        ModalProps={{ keepMounted: true }}
-      >
-        <List sx={{ width: 250 }}>
-          {navItems.map((item) => (
-            <ListItem 
-              button 
-              key={item.path}
-              component={Link}
-              to={item.path}
-              onClick={toggleDrawer}
+              <MenuIcon />
+            </IconButton>
+            
+            {navItems.map((item) => (
+              <Button
+                key={item.path}
+                component={Link}
+                to={item.path}
+                color="inherit"
+                sx={{
+                  display: { xs: 'none', sm: 'block' },
+                  fontWeight: location.pathname === item.path ? 'bold' : 'normal'
+                }}
+              >
+                {item.label}
+              </Button>
+            ))}
+            
+            <div style={{ flexGrow: 1 }} />
+            
+            <Switch
+              checked={darkMode}
+              onChange={handleThemeChange}
+              color="primary"
+              inputProps={{ 'aria-label': 'dark mode toggle' }}
+            />
+            
+            <IconButton
+              color="inherit"
+              href="https://github.com/yourusername/crypto-trading-app"
+              target="_blank"
             >
-              {item.label}
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-
-      {/* ============= MAIN CONTENT AREA ============= */}
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        <Routes>
-          {/* Live Prices Dashboard */}
-          <Route path="/" element={<CryptoTable />} />
-          
-          {/* Best Buying Opportunities Page */}
-          <Route path="/best-buys" element={<BestBuys />} />
-          
-          {/* Individual Crypto Detail Page with Nested Chart */}
-          <Route path="/crypto/:symbol" element={<CryptoDetail />}>
-            <Route path="chart" element={<PriceChart />} />
-          </Route>
-          
-          {/* Order History Page */}
-          <Route path="/orders" element={<OrderHistory />} />
-        </Routes>
-      </Container>
-    </div>
+              <GitHubIcon />
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        
+        <Drawer
+          anchor="left"
+          open={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+        >
+          <List sx={{ width: 250 }}>
+            {navItems.map((item) => (
+              <ListItem 
+                key={item.path}
+                button 
+                component={Link}
+                to={item.path}
+                onClick={() => setMobileOpen(false)}
+              >
+                <ListItemText primary={item.label} />
+              </ListItem>
+            ))}
+          </List>
+        </Drawer>
+        
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+          <Routes>
+            <Route path="/" element={<CryptoTable />} />
+            <Route path="/best-buys" element={<BestBuys />} />
+            <Route path="/crypto/:symbol" element={<CryptoDetail />} />
+            <Route path="/orders" element={<OrderHistory />} />
+          </Routes>
+        </Container>
+      </div>
+    </ThemeProvider>
   );
 }
 
