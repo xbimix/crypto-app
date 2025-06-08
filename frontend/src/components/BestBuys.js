@@ -19,23 +19,22 @@ import OrderForm from './OrderForm';
 function BestBuys() {
   const [bestBuys, setBestBuys] = useState([]);
   const [loading, setLoading] = useState(true);
-
+const [error, setError] = useState(null);
   useEffect(() => {
-    const fetchBestOpportunities = () => {
-      axios.get('/api/best_opportunities')
-        .then(response => {
-          const data = response.data
-            .filter(crypto => crypto.symbol !== 'MATIC') // Exclude MATIC
-            .slice(0, 25); // Get top 25
-          setBestBuys(data);
+    const fetchBestOpportunities  = async () => {
+      try {
+        const response = await axios.get('/api/best_opportunities');
+        
+          setBestBuys(response.data);
           setLoading(false);
-        })
-        .catch(error => {
-          console.error("Error fetching opportunities:", error);
-          setLoading(false);
-        });
+        } catch (error) {
+        setError('Failed to load opportunities. Check backend logs.');
+        console.error('Opportunities fetch error:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-
+     
     // Initial fetch
     fetchBestOpportunities();
     
@@ -44,8 +43,8 @@ function BestBuys() {
     return () => clearInterval(interval);
   }, []);
 
-  const calculateDiscount = (price, support) => {
-    if (!price || !support) return 0;
+const calculateDiscount = (price, support) => {
+    if (!price || !support || support <= 0) return 0;
     return ((1 - (price / support)) * 100).toFixed(2);
   };
 
@@ -75,35 +74,42 @@ function BestBuys() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {bestBuys.map((crypto) => (
-                <TableRow key={crypto.symbol}>
-                  <TableCell>
-                    <Typography fontWeight="bold">
-                      {crypto.symbol}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    ${crypto.price?.toLocaleString(undefined, { maximumFractionDigits: 8 })}
-                  </TableCell>
-                  <TableCell>
-                    {crypto.support ? 
-                      `$${crypto.support.toLocaleString()}` : 
-                      'N/A'}
-                  </TableCell>
-                  <TableCell sx={{ 
-                    color: crypto.price < crypto.support ? 'success.main' : 'error.main',
-                    fontWeight: 500
-                  }}>
-                    {crypto.support ? 
-                      `${calculateDiscount(crypto.price, crypto.support)}%` : 
-                      'N/A'}
-                  </TableCell>
-                  <TableCell>
-                    <OrderForm symbol={crypto.symbol} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
+      {bestBuys.map((crypto) => (
+        <TableRow key={crypto.symbol}>
+          <TableCell>
+            <Typography fontWeight="bold">
+              {crypto.symbol}
+            </Typography>
+          </TableCell>
+          <TableCell>
+            ${crypto.price?.toLocaleString(undefined, { 
+              minimumFractionDigits: 2, 
+              maximumFractionDigits: crypto.price < 1 ? 8 : 2 
+            })}
+          </TableCell>
+          <TableCell>
+            {crypto.support ? 
+              `$${crypto.support.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 8
+              })}` : 
+              'N/A'}
+          </TableCell>
+          <TableCell sx={{ 
+            color: crypto.price && crypto.support && crypto.price < crypto.support ? 
+                   'success.main' : 'error.main',
+            fontWeight: 500
+          }}>
+            {crypto.support ? 
+              `${calculateDiscount(crypto.price, crypto.support)}%` : 
+              'N/A'}
+          </TableCell>
+          <TableCell>
+            <OrderForm symbol={crypto.symbol} />
+          </TableCell>
+        </TableRow>
+      ))}
+    </TableBody>
           </Table>
         </TableContainer>
       )}

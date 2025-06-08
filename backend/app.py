@@ -94,26 +94,47 @@ def place_order():
 
 
 def best_opportunities():
-    opportunities = []
+    bOpportunities = []
     for symbol in CRYPTO_LIST:
-        closes = [x[4] for x in binance.fetch_ohlcv(f"{symbol}/USDT", '15m', limit=100)]
-        support, resistance = calculate_support_resistance(closes)
-        
-        # Trading logic
-        current_price = current_prices[symbol]['price']
-        if current_price < support * 1.02:  # Within 2% of support
-            opportunities.append({
-                'symbol': symbol,
-                'price': current_price,
-                'support': support,
-                'target': resistance
-            })
-    return opportunities
-
+        try:
+            # Check if we have current price data
+            if symbol not in current_prices or current_prices[symbol] is None:
+                continue
+                
+            # Get OHLCV data
+            ohlcv = binance.fetch_ohlcv(f"{symbol}/USDT", '15m', limit=100)
+            if len(ohlcv) < 100:
+                continue
+                
+            closes = [x[4] for x in ohlcv]
+            support, resistance = calculate_support_resistance(closes)
+            
+            # Skip if support couldn't be calculated
+            if support is None or support <= 0:
+                continue
+                
+            current_price = current_prices[symbol].get('price')
+            if current_price is None:
+                continue
+                
+            # Trading logic - only execute if all values are valid
+            if current_price < support * 1.02:  # Within 2% of support
+                bOpportunities.append({
+                    'symbol': symbol,
+                    'price': current_price,
+                    'support': support,
+                    'target': resistance
+                })
+        except Exception as e:
+            print(f"Error processing {symbol} in best_opportunities: {e}")
+            continue
+            
+    return bOpportunities [:5]
 
 # Add in app.py
 @app.route('/api/best_opportunities')
 def get_best_opportunities():
+   
     return jsonify(best_opportunities())
 
 
