@@ -21,6 +21,7 @@ import BestBuys from './components/BestBuys';
 import PriceChart from './components/PriceChart';
 import CryptoDetail from './components/CryptoDetail';
 import OrderHistory from './components/OrderHistory';
+import OpportunitiesTable from './components/OpportunitiesTable';
 
 function App() {
   const location = useLocation();
@@ -30,6 +31,7 @@ function App() {
   const navItems = [
     { path: '/', label: 'Live Prices' },
     { path: '/best-buys', label: 'Best Opportunities' },
+    { path: '/opportunities', label: 'Top Opportunities' }, // ADD THIS LINE
     { path: '/orders', label: 'My Orders' },
   ];
 
@@ -91,6 +93,8 @@ function App() {
                 {item.label}
               </Button>
             ))}
+
+
             
             <div style={{ flexGrow: 1 }} />
             
@@ -129,6 +133,9 @@ function App() {
               </ListItem>
             ))}
           </List>
+
+           
+
         </Drawer>
         
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
@@ -137,6 +144,7 @@ function App() {
             <Route path="/best-buys" element={<BestBuys />} />
             <Route path="/crypto/:symbol" element={<CryptoDetail />} />
             <Route path="/orders" element={<OrderHistory />} />
+            <Route path="/opportunities" element={<OpportunitiesTable />} />
           </Routes>
         </Container>
       </div>
