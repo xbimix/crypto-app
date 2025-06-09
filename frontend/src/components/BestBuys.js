@@ -3,18 +3,92 @@ import axios from 'axios';
 import { 
   Table, 
   TableBody, 
-  TableCell, 
+ TableCell, 
   TableContainer, 
   TableHead, 
   TableRow, 
   Paper, 
   Typography,
   CircularProgress,
-  Box
+  Box,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl
 } from '@mui/material';
 
-import OrderForm from './OrderForm';
+//import OrderForm from './OrderForm';
 
+function OrderForm({ symbol, currentPrice }) {
+  const [orderType, setOrderType] = useState('limit');
+  const [amount, setAmount] = useState('');
+  const [limitPrice, setLimitPrice] = useState('');
+  
+  useEffect(() => {
+    if (currentPrice) {
+      // Calculate 2% below current price
+      const price = currentPrice * 0.98;
+      // Format with appropriate decimals
+      const decimals = currentPrice < 1 ? 8 : 2;
+      setLimitPrice(price.toFixed(decimals));
+    }
+  }, [currentPrice]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Place order logic here
+    console.log(`Placing ${orderType} order for ${amount} ${symbol} at ${limitPrice}`);
+    axios.post('/api/place_order', {
+      symbol: `${symbol}/USDT`,
+      type: orderType,
+      side: 'buy',
+      amount: amount,
+      price: orderType === 'limit' ? limitPrice : undefined
+    });
+  };
+
+  return (
+    <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', gap: 1 }}>
+      <FormControl size="small" sx={{ minWidth: 80 }}>
+        <InputLabel>Type</InputLabel>
+        <Select
+          value={orderType}
+          label="Type"
+          onChange={(e) => setOrderType(e.target.value)}
+        >
+          <MenuItem value="limit">Limit</MenuItem>
+          <MenuItem value="market">Market</MenuItem>
+        </Select>
+      </FormControl>
+      
+      {orderType === 'limit' && (
+        <TextField
+          size="small"
+          label="Price"
+          type="number"
+          value={limitPrice}
+          onChange={(e) => setLimitPrice(e.target.value)}
+          sx={{ width: 120 }}
+          inputProps={{ step: "0.00000001" }}
+        />
+      )}
+      
+      <TextField
+        size="small"
+        label="Amount"
+        type="number"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        sx={{ width: 100 }}
+        inputProps={{ step: "0.00000001" }}
+      />
+      
+      <Button type="submit" variant="contained" size="small">Buy</Button>
+    </Box>
+  );
+}
 
 function BestBuys() {
   const [bestBuys, setBestBuys] = useState([]);
@@ -35,7 +109,7 @@ const [error, setError] = useState(null);
       }
     };
      
-    // Initial fetch
+   // Initial fetch
     fetchBestOpportunities();
     
     // Refresh every 30 seconds
@@ -43,8 +117,8 @@ const [error, setError] = useState(null);
     return () => clearInterval(interval);
   }, []);
 
-const calculateDiscount = (price, support) => {
-    if (!price || !support || support <= 0) return 0;
+  const calculateDiscount = (price, support) => {
+    if (!price || !support) return 0;
     return ((1 - (price / support)) * 100).toFixed(2);
   };
 
@@ -74,42 +148,35 @@ const calculateDiscount = (price, support) => {
               </TableRow>
             </TableHead>
             <TableBody>
-      {bestBuys.map((crypto) => (
-        <TableRow key={crypto.symbol}>
-          <TableCell>
-            <Typography fontWeight="bold">
-              {crypto.symbol}
-            </Typography>
-          </TableCell>
-          <TableCell>
-            ${crypto.price?.toLocaleString(undefined, { 
-              minimumFractionDigits: 2, 
-              maximumFractionDigits: crypto.price < 1 ? 8 : 2 
-            })}
-          </TableCell>
-          <TableCell>
-            {crypto.support ? 
-              `$${crypto.support.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 8
-              })}` : 
-              'N/A'}
-          </TableCell>
-          <TableCell sx={{ 
-            color: crypto.price && crypto.support && crypto.price < crypto.support ? 
-                   'success.main' : 'error.main',
-            fontWeight: 500
-          }}>
-            {crypto.support ? 
-              `${calculateDiscount(crypto.price, crypto.support)}%` : 
-              'N/A'}
-          </TableCell>
-          <TableCell>
-            <OrderForm symbol={crypto.symbol} />
-          </TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
+              {bestBuys.map((crypto) => (
+                <TableRow key={crypto.symbol}>
+                  <TableCell>
+                    <Typography fontWeight="bold">
+                      {crypto.symbol}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    ${crypto.price?.toLocaleString(undefined, { maximumFractionDigits: 8 })}
+                  </TableCell>
+                  <TableCell>
+                    {crypto.support ? 
+                      `$${crypto.support.toLocaleString()}` : 
+                      'N/A'}
+                  </TableCell>
+                  <TableCell sx={{ 
+                    color: crypto.price < crypto.support ? 'success.main' : 'error.main',
+                    fontWeight: 500
+                  }}>
+                    {crypto.support ? 
+                      `${calculateDiscount(crypto.price, crypto.support)}%` : 
+                      'N/A'}
+                  </TableCell>
+                  <TableCell>
+                    <OrderForm symbol={crypto.symbol} currentPrice={crypto.price} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
           </Table>
         </TableContainer>
       )}

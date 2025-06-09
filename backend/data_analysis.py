@@ -62,11 +62,27 @@ def calculate_rsi(prices, period=14):
     rs = gain / (loss + 1e-9)  # Add small epsilon
     return 100 - (100 / (1 + rs))
 
-def auto_rebuy_price(current_price, risk_percent=2, rebuy_count=3):
+def auto_rebuy_price(current_price, symbol=None, binance=None, risk_percent=2, rebuy_count=3):
     """
-    Calculate staggered rebuy prices
-    Example: Current $100, risk 2%, 3 rebuys → [98.0, 96.04, 94.12]
+    Calculate staggered rebuy prices with 3-month average price check
     """
+    # If symbol and binance are provided, check the 3-month average
+    if symbol and binance:
+        try:
+            # Fetch 90 days of daily data (approximately 3 months)
+            ohlcv = binance.fetch_ohlcv(f"{symbol}/USDT", '1d', limit=90)
+            if ohlcv:
+                closes = [x[4] for x in ohlcv]
+                avg_3month = sum(closes) / len(closes)
+                
+                # If current price is higher than half of the 3-month average
+                if current_price > 0.5 * avg_3month:
+                    return None  # Signal that user decision is required
+        except Exception as e:
+            print(f"Error checking 3-month average for {symbol}: {e}")
+            # Proceed with calculation if there's an error fetching data
+    
+    # Proceed with normal rebuy price calculation
     rebuy_prices = []
     price = current_price
     for _ in range(rebuy_count):

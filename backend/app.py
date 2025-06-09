@@ -94,14 +94,14 @@ def place_order():
 
 
 def best_opportunities():
-    bOpportunities = []
+    opportunities = []
     for symbol in CRYPTO_LIST:
         try:
             # Check if we have current price data
             if symbol not in current_prices or current_prices[symbol] is None:
                 continue
                 
-            # Get OHLCV data
+            # Get OHLCV data - FIXED THIS LINE
             ohlcv = binance.fetch_ohlcv(f"{symbol}/USDT", '15m', limit=100)
             if len(ohlcv) < 100:
                 continue
@@ -119,7 +119,7 @@ def best_opportunities():
                 
             # Trading logic - only execute if all values are valid
             if current_price < support * 1.02:  # Within 2% of support
-                bOpportunities.append({
+                opportunities.append({
                     'symbol': symbol,
                     'price': current_price,
                     'support': support,
@@ -129,7 +129,7 @@ def best_opportunities():
             print(f"Error processing {symbol} in best_opportunities: {e}")
             continue
             
-    return bOpportunities [:5]
+    return opportunities [:15]
 
 # Add in app.py
 @app.route('/api/best_opportunities')
