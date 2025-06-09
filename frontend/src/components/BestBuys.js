@@ -18,7 +18,7 @@ import {
   InputLabel,
   FormControl
 } from '@mui/material';
-
+ 
 //import OrderForm from './OrderForm';
 
 function OrderForm({ symbol, currentPrice }) {
