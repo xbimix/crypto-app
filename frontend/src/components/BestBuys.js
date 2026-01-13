@@ -37,7 +37,7 @@ function OrderForm({ symbol, currentPrice }) {
   }, [currentPrice]);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     // Place order logic here
     console.log(`Placing ${orderType} order for ${amount} ${symbol} at ${limitPrice}`);
     axios.post('/api/place_order', {
@@ -46,8 +46,12 @@ function OrderForm({ symbol, currentPrice }) {
       side: 'buy',
       amount: amount,
       price: orderType === 'limit' ? limitPrice : undefined
-    });
+    })
+    .then((res) => console.log('Order response', res))
+    .catch((err) => console.error('Order error', err));
   };
+
+  const isBuyDisabled = !amount || Number(amount) <= 0 || (orderType === 'limit' && (!limitPrice || Number(limitPrice) <= 0));
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', gap: 1 }}>
@@ -85,7 +89,15 @@ function OrderForm({ symbol, currentPrice }) {
         inputProps={{ step: "0.00000001" }}
       />
       
-      <Button type="submit" variant="contained" size="small">Buy</Button>
+      <Button
+        type="submit"
+        variant="contained"
+        size="small"
+        disabled={isBuyDisabled}
+        onClick={() => window.open('https://google.com', '_blank', 'noopener,noreferrer')}
+      >
+        Buy
+      </Button>
     </Box>
   );
 }

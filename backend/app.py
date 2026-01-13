@@ -28,16 +28,12 @@ binance = ccxt.binance({
 })
 
 # Use base symbols only
-CRYPTO_LIST = ['BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'ADA', 'DOGE', 'DOT', 'SHIB', 'MATIC', 
-               'AVAX', 'LTC', 'UNI', 'LINK', 'ATOM', 'XLM', 'ALGO', 'FIL', 'VET', 'AXS',
-               'THETA', 'XTZ', 'SAND', 'MANA', 'GALA',
-               'ETC', 'TRX', 'NEAR', 'XMR', 'KLAY', 'FLOW', 'APE', 'AAVE', 'QNT', 'EOS',
-    'CHZ', 'MKR', 'GRT', 'SNX', 'CRV', 'COMP', 'BAT', 'ENJ', 'ZEC', 'DASH',
-    'NEO', 'KSM', 'ZIL', 'ONE', 'IOTA', 'WAVES', 'RUNE', 'ROSE', 'KAVA', 'HNT',
-    'GNO', 'ICX', 'OMG', 'ANKR', 'SC', 'STORJ', 'ONT', 'CELO', 'RVN', 'AR',
-    'YFI', '1INCH', 'BAL', 'UMA', 'REN', 'COTI', 'OGN', 'REP', 'NMR', 'OXT'
-               
-               ]
+CRYPTO_LIST = [
+    'ACH', 'ADA', 'API3', 'BLZ', 'DOT', 'LOKA', 'POLS', 'RARE', 'SOL', 'SUPER', 
+    'VET', 'VTHO', 'ARKM', 'DEGEN', 'SEI', 'SUI', 'XLM', 'XRP', 'AMP', 'ARPA', 
+    'BTC', 'CLV', 'CRV', 'DOGE', 'HBAR', 'JASMY', 'MATIC', 'ORCA', 'SHIB', 'SPELL', 
+    'BONK', 'PEPE', 'FLOKI', 'POL', 'PYTH', 'PONKEUSDT.P'
+]
 
 current_prices = {symbol: None for symbol in CRYPTO_LIST}  # Initialize
 

@@ -62,6 +62,10 @@ def calculate_rsi(prices, period=14):
     rs = gain / (loss + 1e-9)  # Add small epsilon
     return 100 - (100 / (1 + rs))
 
+
+#calculate the highest volitile crypto and the measure the % in drops and rises and how frequent they occur...
+
+
 def auto_rebuy_price(current_price, symbol=None, binance=None, risk_percent=2, rebuy_count=3):
     """
     Calculate staggered rebuy prices with 3-month average price check
